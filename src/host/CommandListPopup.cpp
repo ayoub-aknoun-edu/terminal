@@ -334,12 +334,16 @@ void CommandListPopup::_drawList()
     WriteCoord.x = _region.left + 1;
     WriteCoord.y = _region.top + 1;
     size_t lStringLength = Width();
-    for (til::CoordType i = 0; i < Height(); ++i)
+
     {
-        const OutputCellIterator spaces(UNICODE_SPACE, _attributes, lStringLength);
-        const auto result = _screenInfo.Write(spaces, WriteCoord);
-        lStringLength = result.GetCellDistance(spaces);
-        WriteCoord.y += 1;
+        std::wstring spaces(gsl::narrow<size_t>(lStringLength), L' ');
+
+        for (til::CoordType i = 0; i < Height(); ++i)
+        {
+            std::wstring_view str{ spaces };
+            _screenInfo.GetTextBuffer().Write(WriteCoord.y, WriteCoord.x, til::CoordTypeMax, false, _attributes, str);
+            WriteCoord.y += 1;
+        }
     }
 
     auto api = Microsoft::Console::Interactivity::ServiceLocator::LocateGlobals().api;
